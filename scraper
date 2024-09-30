@@ -1,0 +1,50 @@
+import requests
+from bs4 import BeautifulSoup
+
+#get the weather data from Timeanddate
+def get_weather(city_slug):
+    url = f'https://www.timeanddate.com/weather/{city_slug}'
+
+    #fetch the HTML content of the page
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        # Parse the HTML
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        # Find temp element by  class name
+        temp_div = soup.find('div', class_='h2')
+
+        if temp_div:
+            # Extract and clean the temperature data
+            temperature = temp_div.get_text().strip()
+            return temperature
+        else:
+            return "Temperature not found on page"
+    else:
+        return f"Failed to retrieve data for city. Status code: {response.status_code}"
+
+def main():
+    # Dictionary of cities
+    cities = {
+        "London": "uk/london",
+        "New York": "usa/new-york",
+        "Los Angeles": "usa/los-angeles",
+        "Sydney": "australia/sydney",
+        "Tokyo": "japan/tokyo"
+    }
+
+    # take input
+    city_name = input(f"Enter the city name ({', '.join(cities.keys())}): ")
+
+    if city_name in cities:
+        # Get weather data
+        city_slug = cities[city_name]
+        temperature = get_weather(city_slug)
+        print(f"The current temperature in {city_name} is: {temperature}")
+    else:
+        print(f"City not found. Available options are: {', '.join(cities.keys())}")
+
+# run function
+if __name__ == '__main__':
+    main()
